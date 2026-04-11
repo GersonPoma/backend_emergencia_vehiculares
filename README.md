@@ -1,6 +1,6 @@
-# Backend - Sistema de Emergencias Vehiculares
+# AutoSOS - Backend
 
-Backend REST API construido con FastAPI, SQLAlchemy y PostgreSQL.
+Backend REST API para gestión de emergencias vehiculares en tiempo real. Construido con FastAPI, SQLAlchemy y PostgreSQL.
 
 ## Requisitos
 

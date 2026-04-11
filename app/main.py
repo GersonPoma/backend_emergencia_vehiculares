@@ -29,8 +29,8 @@ finally:
     db.close()
 
 app = FastAPI(
-    title="Sistema de Emergencias Vehiculares",
-    description="Backend para gestión de incidentes y asistencia",
+    title="AutoSOS",
+    description="Backend para gestión de emergencias vehiculares en tiempo real",
     version="1.0.0"
 )
 
