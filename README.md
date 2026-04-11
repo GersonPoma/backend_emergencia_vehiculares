@@ -1,42 +1,40 @@
 # Backend - Sistema de Emergencias Vehiculares
 
-Guia rapida para levantar el backend en local (FastAPI).
+Backend REST API construido con FastAPI, SQLAlchemy y PostgreSQL.
 
-## 1) Requisitos
+## Requisitos
 
-- Windows con PowerShell
 - Python 3.10 o superior
-- PostgreSQL (si vas a usar base de datos local)
+- PostgreSQL
 
-## 2) Clonar y entrar al proyecto
+## Instalación
+
+### 1. Clonar y entrar al proyecto
 
 ```powershell
 git clone <URL_DEL_REPOSITORIO>
 Set-Location "backend_emergencia_vehiculares"
 ```
 
-## 3) Entorno virtual
-
-Este proyecto ya trae una carpeta `env/`. Si existe en tu copia, activala:
-
-```powershell
-.\env\Scripts\Activate.ps1
-```
-
-Si no existe, crea una nueva:
+### 2. Entorno virtual
 
 ```powershell
 python -m venv env
 .\env\Scripts\Activate.ps1
 ```
 
-## 4) Instalar dependencias
+> Si PowerShell bloquea scripts, ejecuta una vez:
+> ```powershell
+> Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+> ```
+
+### 3. Instalar dependencias
 
 ```powershell
 pip install -r requirements.txt
 ```
 
-## 5) Configurar variables de entorno
+### 4. Configurar variables de entorno
 
 Copia el archivo de ejemplo y ajusta tus valores:
 
@@ -44,18 +42,7 @@ Copia el archivo de ejemplo y ajusta tus valores:
 Copy-Item .env.exampe .env
 ```
 
-Variables esperadas en `.env`:
-
-- `DB_USER`
-- `DB_PASSWORD`
-- `DB_HOST`
-- `DB_PORT`
-- `DB_NAME`
-- `SECRET_KEY`
-- `ALGORITHM`
-- `ACCESS_TOKEN_EXPIRE_MINUTES`
-
-Ejemplo rapido de conexion local con esas variables:
+Edita `.env` con tus datos:
 
 ```dotenv
 DB_USER=postgres
@@ -63,59 +50,128 @@ DB_PASSWORD=tu_password
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=db_emergencias
+
+SECRET_KEY=tu_clave_secreta
+ALGORITHM=HS256
+# ACCESS_TOKEN_EXPIRE_MINUTES=60   (1 hora)
+ACCESS_TOKEN_EXPIRE_MINUTES=10080  (7 días)
 ```
 
-## 6) Levantar el servidor
+### 5. Levantar el servidor
 
 ```powershell
 uvicorn app.main:app --reload
 ```
 
-La API quedara disponible en:
+Al iniciar, el sistema automaticamente:
+- Crea todas las tablas en la base de datos
+- Ejecuta el seeder con los roles (`cliente`, `tecnico`, `admin_taller`) y privilegios del sistema
 
+La API queda disponible en:
 - `http://127.0.0.1:8000/`
-- Docs Swagger: `http://127.0.0.1:8000/docs`
+- Swagger UI: `http://127.0.0.1:8000/docs`
 
-## 7) Verificacion rapida
+---
 
-Con el servidor corriendo, abre en navegador:
+## Estructura del proyecto
 
-- `http://127.0.0.1:8000/`
+```
+app/
+├── api/
+│   ├── cuentas/        # auth, roles, usuarios, privilegios
+│   └── perfiles/       # clientes, vehiculos, talleres, servicios, tecnicos
+├── core/
+│   ├── base_model.py   # Mixin SoftDelete (created_at, updated_at, deleted, deleted_at)
+│   ├── paginacion.py   # Schema generico de paginacion
+│   └── security.py     # JWT, hashing, autenticacion
+├── db/
+│   ├── session.py      # Conexion SQLAlchemy
+│   └── seeder.py       # Datos iniciales (roles y privilegios)
+├── models/
+│   ├── cuentas/        # Rol, Usuario, Privilegio, RolPrivilegio
+│   └── perfiles/       # Cliente, Vehiculo, Taller, ServicioTaller, Tecnico
+├── schemas/
+│   ├── cuentas/        # Schemas de autenticacion y usuarios
+│   └── perfiles/       # Schemas de perfiles
+├── services/
+│   ├── cuentas/        # Logica de negocio de cuentas
+│   └── perfiles/       # Logica de negocio de perfiles
+└── main.py
+```
 
-Respuesta esperada:
+---
 
-```json
+## Autenticación
+
+Todas las rutas excepto las de registro y login requieren token JWT.
+
+### Login
+
+```http
+POST /auth/login
+Content-Type: application/json
+
 {
-  "status": "Online",
-  "message": "API de Emergencias Vehiculares lista"
+  "username": "usuario",
+  "password": "contrasena"
 }
 ```
 
-## Estructura basica
+Respuesta:
 
-```text
-backend_emergencia_vehiculares/
-  app/
-    main.py
-  requirements.txt
-  .env.exampe
+```json
+{
+  "access_token": "eyJ...",
+  "token_type": "bearer",
+  "id_usuario": 1,
+  "id_perfil": 3,
+  "id_taller": null,
+  "rol": "cliente",
+  "privilegios": []
+}
 ```
 
-## Flujo recomendado para primera vez
+Para usar el token en Swagger, haz clic en **Authorize** y pega el `access_token`.
 
-1. Activar entorno virtual.
-2. Instalar dependencias.
-3. Crear `.env` desde `.env.exampe`.
-4. Ajustar `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT` y `DB_NAME` en `.env`.
-5. Ejecutar `uvicorn app.main:app --reload`.
+---
 
-## Notas
+## Endpoints principales
 
-- Si PowerShell bloquea scripts, ejecuta una vez:
+### Publicos (sin token)
 
-```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| `POST` | `/auth/login` | Iniciar sesión |
+| `POST` | `/clientes/registrar` | Registrar cliente |
+| `POST` | `/talleres/registrar` | Registrar taller |
+
+### Protegidos (requieren token)
+
+| Módulo | Prefijo |
+|--------|---------|
+| Roles | `/roles` |
+| Usuarios | `/usuarios` |
+| Privilegios | `/privilegios` |
+| Clientes | `/clientes` |
+| Vehículos | `/vehiculos` |
+| Talleres | `/talleres` |
+| Servicios del taller | `/servicios-taller` |
+| Técnicos | `/tecnicos` |
+
+---
+
+## Paginación
+
+Los endpoints de listado devuelven:
+
+```json
+{
+  "datos": [...],
+  "total": 15,
+  "pagina": 1,
+  "limite": 10,
+  "total_paginas": 2
+}
 ```
 
-- Si cambias dependencias, actualiza `requirements.txt`.
-
+Parámetros query: `?pagina=1&limite=10`
