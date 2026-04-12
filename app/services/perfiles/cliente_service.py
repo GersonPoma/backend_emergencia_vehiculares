@@ -83,5 +83,8 @@ def eliminar(db: Session, cliente_id: int) -> Cliente | None:
     if not cliente:
         return None
     cliente.soft_delete()
+    usuario = db.query(Usuario).filter(Usuario.id == cliente.usuario_id).first()
+    if usuario:
+        usuario.soft_delete()
     db.commit()
     return cliente
