@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, ForeignKey
 from sqlalchemy.orm import relationship
 
 from app.core.base_model import SoftDelete
@@ -10,6 +10,7 @@ class ServicioTaller(Base, SoftDelete):
 
     id = Column(Integer, primary_key=True)
     tipo_servicio = Column(String(150), nullable=False)
+    precio = Column(Float, nullable=False)
     taller_id = Column(Integer, ForeignKey("taller.id"), nullable=False)
 
     taller = relationship("Taller", back_populates="servicios")
