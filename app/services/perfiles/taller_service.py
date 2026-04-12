@@ -83,5 +83,8 @@ def eliminar(db: Session, taller_id: int) -> Taller | None:
     if not taller:
         return None
     taller.soft_delete()
+    usuario = db.query(Usuario).filter(Usuario.id == taller.usuario_id).first()
+    if usuario:
+        usuario.soft_delete()
     db.commit()
     return taller
