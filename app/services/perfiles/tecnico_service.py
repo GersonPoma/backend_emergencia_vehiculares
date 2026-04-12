@@ -79,5 +79,8 @@ def eliminar(db: Session, tecnico_id: int) -> Tecnico | None:
     if not tecnico:
         return None
     tecnico.soft_delete()
+    usuario = db.query(Usuario).filter(Usuario.id == tecnico.usuario_id).first()
+    if usuario:
+        usuario.soft_delete()
     db.commit()
     return tecnico
