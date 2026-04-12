@@ -59,9 +59,19 @@ ACCESS_TOKEN_EXPIRE_MINUTES=10080  (7 días)
 
 ### 5. Levantar el servidor
 
+Opcion A - Solo pruebas en esta misma PC (web local):
+
 ```powershell
-uvicorn app.main:app --reload
+uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
+
+Opcion B - Pruebas desde Flutter movil (emulador o celular en red local):
+
+```powershell
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+`0.0.0.0` permite que otros dispositivos de tu red local puedan conectarse al backend.
 
 Al iniciar, el sistema automaticamente:
 - Crea todas las tablas en la base de datos
@@ -70,6 +80,14 @@ Al iniciar, el sistema automaticamente:
 La API queda disponible en:
 - `http://127.0.0.1:8000/`
 - Swagger UI: `http://127.0.0.1:8000/docs`
+
+### Pruebas locales desde Flutter movil
+
+Si usas la opcion B (`--host 0.0.0.0`), en Flutter usa esta `baseUrl` segun el entorno:
+
+- Android emulator: `http://10.0.2.2:8000`
+- iOS simulator: `http://127.0.0.1:8000`
+- Celular fisico: `http://<IP_DE_TU_PC>:8000` (ejemplo: `http://192.168.1.50:8000`)
 
 ---
 
