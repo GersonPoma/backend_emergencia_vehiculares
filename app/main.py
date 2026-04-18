@@ -8,6 +8,8 @@ from app.db import seeder
 from app.models.cuentas import rol, usuario, privilegio, rol_privilegio  # noqa: F401
 # Modelos perfiles
 from app.models.perfiles import cliente, vehiculo, taller, servicio_taller, tecnico  # noqa: F401
+# Modelos emergencias
+from app.models.emergencias import incidente, evidencia  # noqa: F401
 
 # APIs cuentas
 from app.api.cuentas import auth, rol as rol_api, usuario as usuario_api, privilegio as privilegio_api
@@ -19,6 +21,9 @@ from app.api.perfiles import (
     servicio_taller as servicio_taller_api,
     tecnico as tecnico_api,
 )
+# APIs emergencias
+from app.api.emergencias import incidente as incidente_api
+from app.api.emergencias import evidencia as evidencia_api
 
 Base.metadata.create_all(bind=engine)
 
@@ -61,6 +66,10 @@ app.include_router(vehiculo_api.router)
 app.include_router(taller_api.router)
 app.include_router(servicio_taller_api.router)
 app.include_router(tecnico_api.router)
+
+# Emergencias
+app.include_router(incidente_api.router)
+app.include_router(evidencia_api.router)
 
 
 @app.get("/")
