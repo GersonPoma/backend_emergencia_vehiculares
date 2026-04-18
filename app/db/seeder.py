@@ -38,6 +38,17 @@ PRIVILEGIOS = [
     # Servicios taller
     {"nombre": "ver_servicios",      "descripcion": "Listar servicios de talleres"},
     {"nombre": "gestionar_servicios","descripcion": "Crear, editar y eliminar servicios"},
+    # Emergencias
+    {"nombre": "crear_incidente",        "descripcion": "Registrar nuevos incidentes"},
+    {"nombre": "ver_incidente",          "descripcion": "Consultar incidente por ID"},
+    {"nombre": "ver_incidentes_usuario", "descripcion": "Listar incidentes por usuario"},
+    {"nombre": "cancelar_incidente",     "descripcion": "Cancelar incidente por ID"},
+    #{"nombre": "actualizar_incidente",   "descripcion": "Actualizar estado o prioridad de incidentes"},
+    # Evidencia
+    {"nombre": "crear_evidencia",        "descripcion": "Registrar nuevas evidencias"},
+    {"nombre": "ver_evidencia",          "descripcion": "Consultar evidencia por ID"},
+    {"nombre": "ver_evidencias_incidente","descripcion": "Listar evidencias por incidente"},
+    {"nombre": "actualizar_evidencia",   "descripcion": "Editar evidencias existentes"},
 ]
 
 
