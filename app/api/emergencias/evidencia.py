@@ -55,3 +55,15 @@ def actualizar(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Evidencia no encontrada")
     return evidencia
 
+
+@router.delete("/{evidencia_id}", status_code=status.HTTP_204_NO_CONTENT)
+def eliminar(
+    evidencia_id: int,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    evidencia = evidencia_service.eliminar(db, evidencia_id)
+    if not evidencia:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Evidencia no encontrada")
+
+

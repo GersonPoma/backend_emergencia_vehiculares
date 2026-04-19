@@ -62,3 +62,14 @@ def actualizar(db: Session, evidencia_id: int, data: EvidenciaActualizar):
     db.refresh(evidencia)
     return evidencia
 
+
+def eliminar(db: Session, evidencia_id: int):
+    evidencia = obtener_por_id(db, evidencia_id)
+    if not evidencia:
+        return None
+
+    db.delete(evidencia)
+    db.commit()
+    return evidencia
+
+
