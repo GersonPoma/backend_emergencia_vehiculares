@@ -58,3 +58,4 @@ class Incidente(Base, SoftDelete):
     )
 
     usuario = relationship("Usuario", backref="incidentes")
+    analisis = relationship("Analisis", back_populates="incidente", uselist=False)
