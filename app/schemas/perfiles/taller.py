@@ -17,6 +17,7 @@ class TallerActualizar(BaseModel):
     direccion: str | None = None
     latitud: float | None = None
     longitud: float | None = None
+    disponible: bool | None = None
 
 
 class TallerSalida(BaseModel):
@@ -26,6 +27,7 @@ class TallerSalida(BaseModel):
     direccion: str
     latitud: float
     longitud: float
+    disponible: bool
     usuario_id: int
 
     class Config:

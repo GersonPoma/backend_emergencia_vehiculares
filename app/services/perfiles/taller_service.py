@@ -72,6 +72,8 @@ def actualizar(db: Session, taller_id: int, data: TallerActualizar) -> Taller | 
         taller.latitud = data.latitud
     if data.longitud is not None:
         taller.longitud = data.longitud
+    if data.disponible is not None:
+        taller.disponible = data.disponible
     taller.updated_at = datetime.utcnow()
     db.commit()
     db.refresh(taller)
