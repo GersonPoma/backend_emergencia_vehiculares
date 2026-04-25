@@ -9,7 +9,8 @@ class ServicioTaller(Base, SoftDelete):
     __tablename__ = "servicio_taller"
 
     id = Column(Integer, primary_key=True)
-    tipo_servicio = Column(String(150), nullable=False)
+    nombre = Column(String(150), nullable=False)
+    categoria = Column(String(150), nullable=False)
     precio = Column(Float, nullable=False)
     taller_id = Column(Integer, ForeignKey("taller.id"), nullable=False)
 
