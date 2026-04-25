@@ -11,6 +11,7 @@ from app.schemas.emergencias.incidente import IncidenteActualizar
 from app.schemas.ia.analisis import AnalisisCrear
 from app.services.emergencias import incidente_service
 from app.services.ia import analisis_service
+from app.services.talleres.service_asignacion import buscar_y_notificar_talleres
 
 router = APIRouter(prefix="/ia", tags=["IA"])
 
@@ -119,6 +120,15 @@ def procesar_incidente(
         db,
         incidente_id,
         IncidenteActualizar(prioridad=prioridad),
+    )
+
+    buscar_y_notificar_talleres(
+        db=db,
+        incidente_id=incidente_actualizado.id,
+        incidente_lat=incidente.latitud,
+        incidente_lon=incidente.longitud,
+        categoria_problema=analisis.categoria_problema,
+        prioridad=incidente_actualizado.prioridad.value,
     )
 
     return {

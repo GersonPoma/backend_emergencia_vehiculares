@@ -12,6 +12,8 @@ from app.models.perfiles import cliente, vehiculo, taller, servicio_taller, tecn
 from app.models.emergencias import incidente, evidencia  # noqa: F401
 # Modelos IA
 from app.models.ia import analisis  # noqa: F401
+# Modelos talleres
+from app.models.talleres import asignacion_candidato, orden_servicio  # noqa: F401
 
 # APIs cuentas
 from app.api.cuentas import auth, rol as rol_api, usuario as usuario_api, privilegio as privilegio_api
@@ -28,6 +30,10 @@ from app.api.emergencias import incidente as incidente_api
 from app.api.emergencias import evidencia as evidencia_api
 # APIs IA
 from app.api.ia import procesamiento as ia_procesamiento_api
+from app.api.ia import analisis as ia_analisis_api
+# APIs talleres
+from app.api.talleres import orden_servicio as orden_servicio_api
+from app.api.talleres import asignacion_candidato as asignacion_candidato_api
 
 Base.metadata.create_all(bind=engine)
 
@@ -77,6 +83,11 @@ app.include_router(evidencia_api.router)
 
 # IA
 app.include_router(ia_procesamiento_api.router)
+app.include_router(ia_analisis_api.router)
+
+# Talleres
+app.include_router(orden_servicio_api.router)
+app.include_router(asignacion_candidato_api.router)
 
 
 @app.get("/")
