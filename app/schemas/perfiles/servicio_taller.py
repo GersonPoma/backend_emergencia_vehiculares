@@ -2,19 +2,22 @@ from pydantic import BaseModel
 
 
 class ServicioTallerCrear(BaseModel):
-    tipo_servicio: str
+    nombre: str
+    categoria: str
     precio: float
     taller_id: int
 
 
 class ServicioTallerActualizar(BaseModel):
-    tipo_servicio: str | None = None
+    nombre: str | None = None
+    categoria: str | None = None
     precio: float | None = None
 
 
 class ServicioTallerSalida(BaseModel):
     id: int
-    tipo_servicio: str
+    nombre: str
+    categoria: str
     precio: float
     taller_id: int
 

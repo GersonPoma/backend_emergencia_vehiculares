@@ -27,7 +27,7 @@ def obtener_por_id(db: Session, servicio_id: int) -> ServicioTaller | None:
 
 
 def crear(db: Session, data: ServicioTallerCrear) -> ServicioTaller:
-    servicio = ServicioTaller(tipo_servicio=data.tipo_servicio, precio=data.precio, taller_id=data.taller_id)
+    servicio = ServicioTaller(nombre=data.nombre, categoria=data.categoria, precio=data.precio, taller_id=data.taller_id)
     db.add(servicio)
     db.commit()
     db.refresh(servicio)
@@ -38,8 +38,10 @@ def actualizar(db: Session, servicio_id: int, data: ServicioTallerActualizar) ->
     servicio = obtener_por_id(db, servicio_id)
     if not servicio:
         return None
-    if data.tipo_servicio is not None:
-        servicio.tipo_servicio = data.tipo_servicio
+    if data.nombre is not None:
+        servicio.nombre = data.nombre
+    if data.categoria is not None:
+        servicio.categoria = data.categoria
     if data.precio is not None:
         servicio.precio = data.precio
     servicio.updated_at = datetime.utcnow()
