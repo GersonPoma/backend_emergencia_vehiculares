@@ -150,10 +150,13 @@ def analizar_imagenes_incidente(urls_fotos: list[str]):
     Devuelve estrictamente un JSON con esta estructura:
     {
         "es_valido": true/false,
-        "categoria": "Motor, Choque, Pintura, Llanta, Batería, u Otro (vacío si no es válido)",
+        "categoria": "Motor, Choque, Pintura, Llanta, Batería, u Otros (vacío si no es válido)",
         "danos_visibles": "Descripción de lo que ves roto o dañado",
-        "prioridad": "Alta, Media o Baja",
-        "motivo_rechazo": "Si es_valido es false, explica por qué (ej. 'La imagen está muy oscura', 'No se ve ningún vehículo'). Si es true, déjalo vacío."
+        "prioridad": "Evalúa la prioridad ESTRICTAMENTE bajo estas reglas: 
+                      - Alta: Choques graves, humo, fuego, o autos destrozados.
+                      - Media: Llantas pinchadas, choques leves (raspones/abolladuras).
+                      - Baja: Luces de tablero, problemas de batería, o daños estéticos menores.",
+        "motivo_rechazo": "Si es_valido es false, explica por qué. Si es true, déjalo vacío."
     }
     """
 

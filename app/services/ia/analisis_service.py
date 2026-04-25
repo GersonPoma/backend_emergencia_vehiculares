@@ -17,3 +17,9 @@ def crear(db: Session, data: AnalisisCrear) -> Analisis:
     db.refresh(analisis)
     return analisis
 
+
+def obtener_por_incidente_id(db: Session, incidente_id: int):
+    return db.query(Analisis).filter(
+        Analisis.incidente_id == incidente_id,
+        Analisis.deleted == False,
+    ).first()
