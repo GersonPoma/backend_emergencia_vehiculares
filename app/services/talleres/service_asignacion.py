@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session, subqueryload
 
 from app.core.paginacion import PaginacionSalida
 from app.models.cuentas.usuario import Usuario
+from app.models.emergencias.incidente import Incidente, EstadoIncidente
 from app.models.perfiles.servicio_taller import ServicioTaller
 from app.models.perfiles.taller import Taller
 from app.models.talleres.asignacion_candidato import AsignacionCandidato, EstadoNotificacion
@@ -246,6 +247,11 @@ def taller_acepta_incidente(db: Session, asignacion_id: int):
 
     # Paso C: ¡TENEMOS UN GANADOR! (El mecánico actual se lleva el incidente)
     asignacion.estado = EstadoNotificacion.ACEPTADO
+
+    # Actualizamos el estado del incidente a EN_PROCESO
+    incidente_obj = db.query(Incidente).filter(Incidente.id == asignacion.incidente_id).first()
+    if incidente_obj:
+        incidente_obj.estado = EstadoIncidente.EN_PROCESO
 
     # Paso D: Descalificamos a los perdedores (Rechazamos a los demás candidatos del mismo incidente)
     _rechazar_otros_candidatos(db, asignacion.incidente_id, asignacion_id)
