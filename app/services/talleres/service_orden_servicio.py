@@ -3,6 +3,7 @@ import math
 from sqlalchemy.orm import Session
 
 from app.core.paginacion import PaginacionSalida
+from app.models.talleres.asignacion_candidato import AsignacionCandidato, EstadoNotificacion
 from app.models.talleres.orden_servicio import OrdenServicio
 
 
@@ -48,8 +49,30 @@ def obtener_por_id(db: Session, orden_id: int):
     return _mapear_orden_salida(orden)
 
 
+def obtener_por_taller_id(db: Session, taller_id: int, pagina: int = 1, limite: int = 10) -> PaginacionSalida:
+    skip = (pagina - 1) * limite
+    query = (
+        db.query(OrdenServicio)
+        .join(AsignacionCandidato, OrdenServicio.asignacion_candidato_id == AsignacionCandidato.id)
+        .filter(
+            AsignacionCandidato.taller_id == taller_id,
+            AsignacionCandidato.estado == EstadoNotificacion.ACEPTADO,
+            OrdenServicio.deleted == False,
+        )
+        .order_by(OrdenServicio.fecha_hora.desc())
+    )
+    total = query.count()
+    datos = query.offset(skip).limit(limite).all()
+    return PaginacionSalida(
+        datos=[_mapear_orden_salida(o) for o in datos],
+        total=total,
+        pagina=pagina,
+        limite=limite,
+        total_paginas=math.ceil(total / limite) if limite else 1,
+    )
+
+
 def obtener_por_incidente_id(db: Session, incidente_id: int):
-    from app.models.talleres.asignacion_candidato import AsignacionCandidato, EstadoNotificacion
     orden = (
         db.query(OrdenServicio)
         .join(AsignacionCandidato, OrdenServicio.asignacion_candidato_id == AsignacionCandidato.id)

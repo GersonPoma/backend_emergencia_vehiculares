@@ -16,6 +16,11 @@ def listar(pagina: int = 1, limite: int = 10, db: Session = Depends(get_db)):
     return service_orden_servicio.obtener_todos(db, pagina, limite)
 
 
+@router.get("/taller/{taller_id}", response_model=PaginacionSalida[OrdenServicioSalida])
+def listar_por_taller(taller_id: int, pagina: int = 1, limite: int = 10, db: Session = Depends(get_db)):
+    return service_orden_servicio.obtener_por_taller_id(db, taller_id, pagina, limite)
+
+
 @router.get("/incidente/{incidente_id}", response_model=OrdenServicioSalida)
 def obtener_por_incidente(incidente_id: int, db: Session = Depends(get_db)):
     orden = service_orden_servicio.obtener_por_incidente_id(db, incidente_id)
