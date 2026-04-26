@@ -14,7 +14,15 @@ def formatear_tiempo_hms(segundos: int) -> str:
     return f"{horas}:{minutos}:{segs:02d}"
 
 
-def _mapear_orden_salida(orden) -> dict:
+def _mapear_orden_salida(orden: OrdenServicio) -> dict:
+    incidente = orden.asignacion_candidato.incidente if orden.asignacion_candidato else None
+    incidente_id = incidente.id if incidente else 0
+
+    nombre_cliente = "Desconocido"
+    if incidente and incidente.usuario and incidente.usuario.cliente:
+        cliente_perfil = incidente.usuario.cliente[0]
+        nombre_cliente = f"{cliente_perfil.nombre} {cliente_perfil.apellido}"
+
     return {
         "id": orden.id,
         "fecha_hora": orden.fecha_hora,
@@ -22,6 +30,8 @@ def _mapear_orden_salida(orden) -> dict:
         "tiempo_estimado_llegada": formatear_tiempo_hms(orden.tiempo_estimado_llegada),
         "estado": orden.estado,
         "asignacion_candidato_id": orden.asignacion_candidato_id,
+        "incidente_id": incidente_id,
+        "nombre_cliente": nombre_cliente,
     }
 
 

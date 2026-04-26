@@ -13,3 +13,6 @@ class OrdenServicioSalida(BaseModel):
     estado: EstadoOperacion
     asignacion_candidato_id: int
 
+    incidente_id: int
+    nombre_cliente: str
+
