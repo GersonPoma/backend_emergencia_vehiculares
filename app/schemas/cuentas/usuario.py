@@ -35,3 +35,7 @@ class UsuarioSalida(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class FcmTokenRegistrar(BaseModel):
+    fcm_token: str

@@ -16,6 +16,14 @@ def listar(pagina: int = 1, limite: int = 10, db: Session = Depends(get_db)):
     return service_orden_servicio.obtener_todos(db, pagina, limite)
 
 
+@router.get("/incidente/{incidente_id}", response_model=OrdenServicioSalida)
+def obtener_por_incidente(incidente_id: int, db: Session = Depends(get_db)):
+    orden = service_orden_servicio.obtener_por_incidente_id(db, incidente_id)
+    if not orden:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Orden de servicio no encontrada")
+    return orden
+
+
 @router.get("/{orden_id}", response_model=OrdenServicioSalida)
 def obtener_por_id(orden_id: int, db: Session = Depends(get_db)):
     orden = service_orden_servicio.obtener_por_id(db, orden_id)

@@ -69,3 +69,5 @@ desktop.ini
 *.db
 instance/
 
+emergencias-vehiculares-app-firebase-adminsdk-fbsvc-be5aea5b62.json
+app/core/firebase_credentials.json

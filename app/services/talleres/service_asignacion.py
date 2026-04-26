@@ -2,10 +2,12 @@ import math
 from fastapi import HTTPException
 from sqlalchemy.orm import Session, subqueryload
 
+from app.models.cuentas.usuario import Usuario
 from app.models.perfiles.servicio_taller import ServicioTaller
 from app.models.perfiles.taller import Taller
 from app.models.talleres.asignacion_candidato import AsignacionCandidato, EstadoNotificacion
 from app.models.talleres.orden_servicio import OrdenServicio, EstadoOperacion
+from app.services.firebase_service import enviar_notificacion
 
 
 # ==========================================
@@ -115,6 +117,7 @@ def buscar_y_notificar_talleres(
 
         evaluados.append({
             "taller_id": taller.id,
+            "taller_usuario_id": taller.usuario_id,
             "distancia_km": distancia,
             "precio": precio_servicio
         })
@@ -147,7 +150,24 @@ def buscar_y_notificar_talleres(
 
     db.commit()
 
-    # Devolvemos las notificaciones creadas para que tu controlador las mande por WebSockets o Push a Flutter
+    # Paso F: Notificamos por FCM a cada taller candidato (1 query batch para todos los usuarios)
+    usuario_ids = [c["taller_usuario_id"] for c in top_candidatos]
+    usuarios_map = {
+        u.id: u for u in db.query(Usuario).filter(Usuario.id.in_(usuario_ids)).all()
+    }
+    for i, asignacion in enumerate(nuevas_notificaciones):
+        usuario = usuarios_map.get(top_candidatos[i]["taller_usuario_id"])
+        if usuario and usuario.fcm_token:
+            enviar_notificacion(
+                fcm_token=usuario.fcm_token,
+                titulo="Nueva emergencia cercana",
+                cuerpo=f"Hay un incidente a {top_candidatos[i]['distancia_km']} km que requiere tus servicios.",
+                data={
+                    "incidente_id": str(incidente_id),
+                    "asignacion_id": str(asignacion.id),
+                },
+            )
+
     return nuevas_notificaciones
 
 
@@ -225,6 +245,24 @@ def taller_acepta_incidente(db: Session, asignacion_id: int):
     # Paso F: Guardamos todo (El ganador, los perdedores y la nueva orden) en una sola transacción
     db.commit()
     db.refresh(nueva_orden)
+
+    # Paso G: Notificamos por FCM al cliente dueño del incidente
+    incidente = asignacion.incidente
+    usuario_cliente = db.query(Usuario).filter(
+        Usuario.id == incidente.usuario_id,
+        Usuario.deleted == False,
+    ).first()
+    if usuario_cliente and usuario_cliente.fcm_token:
+        minutos = tiempo_calculado // 60
+        enviar_notificacion(
+            fcm_token=usuario_cliente.fcm_token,
+            titulo="¡Tu emergencia fue aceptada!",
+            cuerpo=f"Un taller está en camino. Tiempo estimado: {minutos} minutos.",
+            data={
+                "orden_id": str(nueva_orden.id),
+                "incidente_id": str(asignacion.incidente_id),
+            },
+        )
 
     return nueva_orden
 

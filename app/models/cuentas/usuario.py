@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, Text
 from sqlalchemy.orm import relationship
 
 from app.core.base_model import SoftDelete
@@ -12,5 +12,6 @@ class Usuario(Base, SoftDelete):
     username = Column(String(100), nullable=False, unique=True)
     password = Column(String(255), nullable=False)
     rol_id = Column(Integer, ForeignKey("rol.id"), nullable=False)
+    fcm_token = Column(Text, nullable=True)
 
     rol = relationship("Rol", backref="usuarios")

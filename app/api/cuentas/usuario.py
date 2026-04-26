@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.core.paginacion import PaginacionSalida
 from app.core.security import get_current_user
 from app.db.session import get_db
-from app.schemas.cuentas.usuario import UsuarioCrear, UsuarioActualizar, UsuarioSalida
+from app.schemas.cuentas.usuario import UsuarioCrear, UsuarioActualizar, UsuarioSalida, FcmTokenRegistrar
 from app.services.cuentas import usuario_service
 
 router = APIRouter(prefix="/usuarios", tags=["Usuarios"], dependencies=[Depends(get_current_user)])
@@ -34,6 +34,13 @@ def actualizar(usuario_id: int, data: UsuarioActualizar, db: Session = Depends(g
     if not usuario:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
     return usuario
+
+
+@router.patch("/{usuario_id}/fcm-token", status_code=status.HTTP_204_NO_CONTENT)
+def registrar_fcm_token(usuario_id: int, data: FcmTokenRegistrar, db: Session = Depends(get_db)):
+    usuario = usuario_service.registrar_fcm_token(db, usuario_id, data.fcm_token)
+    if not usuario:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
 
 
 @router.delete("/{usuario_id}", status_code=status.HTTP_204_NO_CONTENT)

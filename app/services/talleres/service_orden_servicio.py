@@ -48,3 +48,20 @@ def obtener_por_id(db: Session, orden_id: int):
     return _mapear_orden_salida(orden)
 
 
+def obtener_por_incidente_id(db: Session, incidente_id: int):
+    from app.models.talleres.asignacion_candidato import AsignacionCandidato, EstadoNotificacion
+    orden = (
+        db.query(OrdenServicio)
+        .join(AsignacionCandidato, OrdenServicio.asignacion_candidato_id == AsignacionCandidato.id)
+        .filter(
+            AsignacionCandidato.incidente_id == incidente_id,
+            AsignacionCandidato.estado == EstadoNotificacion.ACEPTADO,
+            OrdenServicio.deleted == False,
+        )
+        .first()
+    )
+    if not orden:
+        return None
+    return _mapear_orden_salida(orden)
+
+

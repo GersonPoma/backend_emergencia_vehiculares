@@ -68,6 +68,17 @@ def actualizar(db: Session, usuario_id: int, data: UsuarioActualizar) -> Usuario
     return usuario
 
 
+def registrar_fcm_token(db: Session, usuario_id: int, fcm_token: str) -> Usuario | None:
+    usuario = obtener_por_id(db, usuario_id)
+    if not usuario:
+        return None
+    usuario.fcm_token = fcm_token
+    usuario.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(usuario)
+    return usuario
+
+
 def eliminar(db: Session, usuario_id: int) -> Usuario | None:
     usuario = obtener_por_id(db, usuario_id)
     if not usuario:
