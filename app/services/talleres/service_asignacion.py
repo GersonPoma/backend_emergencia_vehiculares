@@ -2,6 +2,7 @@ import math
 from fastapi import HTTPException
 from sqlalchemy.orm import Session, subqueryload
 
+from app.core.paginacion import PaginacionSalida
 from app.models.cuentas.usuario import Usuario
 from app.models.perfiles.servicio_taller import ServicioTaller
 from app.models.perfiles.taller import Taller
@@ -183,6 +184,24 @@ def obtener_pendientes_por_taller(db: Session, taller_id: int) -> list[Asignacio
             AsignacionCandidato.deleted == False,
         )
         .all()
+    )
+
+
+def obtener_aceptadas_por_taller(db: Session, taller_id: int, pagina: int = 1, limite: int = 10) -> PaginacionSalida:
+    skip = (pagina - 1) * limite
+    query = db.query(AsignacionCandidato).filter(
+        AsignacionCandidato.taller_id == taller_id,
+        AsignacionCandidato.estado == EstadoNotificacion.ACEPTADO,
+        AsignacionCandidato.deleted == False,
+    )
+    total = query.count()
+    datos = query.offset(skip).limit(limite).all()
+    return PaginacionSalida(
+        datos=datos,
+        total=total,
+        pagina=pagina,
+        limite=limite,
+        total_paginas=math.ceil(total / limite) if limite else 1,
     )
 
 
