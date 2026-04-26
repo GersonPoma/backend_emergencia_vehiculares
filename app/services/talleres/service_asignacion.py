@@ -49,6 +49,7 @@ def _obtener_talleres_validos_para_broadcast(db: Session, categoria_problema: st
             ServicioTaller.categoria == categoria_problema,
             ~Taller.id.in_(talleres_contactados_subquery),
         )
+        .distinct()
         .all()
     )
 
