@@ -14,6 +14,8 @@ from app.models.emergencias import incidente, evidencia  # noqa: F401
 from app.models.ia import analisis  # noqa: F401
 # Modelos talleres
 from app.models.talleres import asignacion_candidato, orden_servicio  # noqa: F401
+# Modelos pagos
+from app.models.pagos import detalle_orden, transaccion  # noqa: F401
 
 # APIs cuentas
 from app.api.cuentas import auth, rol as rol_api, usuario as usuario_api, privilegio as privilegio_api
@@ -34,6 +36,9 @@ from app.api.ia import analisis as ia_analisis_api
 # APIs talleres
 from app.api.talleres import orden_servicio as orden_servicio_api
 from app.api.talleres import asignacion_candidato as asignacion_candidato_api
+# APIs pagos
+from app.api.pagos import detalle_orden as detalle_orden_api
+from app.api.pagos import transaccion as transaccion_api
 
 Base.metadata.create_all(bind=engine)
 
@@ -88,6 +93,10 @@ app.include_router(ia_analisis_api.router)
 # Talleres
 app.include_router(orden_servicio_api.router)
 app.include_router(asignacion_candidato_api.router)
+
+# Pagos
+app.include_router(detalle_orden_api.router)
+app.include_router(transaccion_api.router)
 
 
 @app.get("/")

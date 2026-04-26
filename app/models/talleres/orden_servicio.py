@@ -42,3 +42,5 @@ class OrdenServicio(Base, SoftDelete):
     )
 
     asignacion_candidato = relationship("AsignacionCandidato", back_populates="orden_servicio")
+    transaccion = relationship("Transaccion", back_populates="orden_servicio", uselist=False)
+    detalles = relationship("DetalleOrden", back_populates="orden_servicio")

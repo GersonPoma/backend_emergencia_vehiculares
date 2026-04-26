@@ -1,0 +1,42 @@
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+
+from app.core.security import get_current_user
+from app.db.session import get_db
+from app.schemas.pagos.transaccion import ActualizarEstadoEntrada, TransaccionEntrada, TransaccionSalida
+from app.services.pagos import service_transaccion
+
+router = APIRouter(
+    prefix="/transacciones",
+    tags=["Transacciones"],
+    dependencies=[Depends(get_current_user)],
+)
+
+
+@router.post("/", response_model=TransaccionSalida, status_code=status.HTTP_201_CREATED)
+def crear(entrada: TransaccionEntrada, db: Session = Depends(get_db)):
+    return service_transaccion.crear(db, entrada)
+
+
+@router.get("/orden/{orden_id}", response_model=TransaccionSalida)
+def obtener_por_orden(orden_id: int, db: Session = Depends(get_db)):
+    t = service_transaccion.obtener_por_orden(db, orden_id)
+    if not t:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transacción no encontrada")
+    return t
+
+
+@router.get("/{transaccion_id}", response_model=TransaccionSalida)
+def obtener(transaccion_id: int, db: Session = Depends(get_db)):
+    t = service_transaccion.obtener_por_id(db, transaccion_id)
+    if not t:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transacción no encontrada")
+    return t
+
+
+@router.patch("/{transaccion_id}/estado", response_model=TransaccionSalida)
+def actualizar_estado(transaccion_id: int, entrada: ActualizarEstadoEntrada, db: Session = Depends(get_db)):
+    t = service_transaccion.actualizar_estado(db, transaccion_id, entrada.estado)
+    if not t:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transacción no encontrada")
+    return t
