@@ -31,6 +31,18 @@ def obtener_por_usuario_id(
     return incidente_service.obtener_por_usuario_id(db, usuario_id, pagina, limite)
 
 
+@router.get("/usuario/{usuario_id}/activo", response_model=IncidenteSalida)
+def obtener_activo_por_usuario(
+    usuario_id: int,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    incidente = incidente_service.obtener_activo_por_usuario(db, usuario_id)
+    if not incidente:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No hay incidente activo para este usuario")
+    return incidente
+
+
 @router.get("/{incidente_id}", response_model=IncidenteSalida)
 def obtener_por_id(
     incidente_id: int,

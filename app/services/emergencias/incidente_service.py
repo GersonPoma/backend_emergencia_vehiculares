@@ -44,6 +44,19 @@ def obtener_por_usuario_id(db: Session, usuario_id: int, pagina: int = 1, limite
     )
 
 
+def obtener_activo_por_usuario(db: Session, usuario_id: int) -> Incidente | None:
+    return (
+        db.query(Incidente)
+        .filter(
+            Incidente.usuario_id == usuario_id,
+            Incidente.estado == EstadoIncidente.EN_PROCESO,
+            Incidente.deleted == False,
+        )
+        .order_by(Incidente.fecha_hora.desc())
+        .first()
+    )
+
+
 def actualizar(db: Session, incidente_id: int, data: IncidenteActualizar):
     incidente = obtener_por_id(db, incidente_id)
     if not incidente:
