@@ -18,6 +18,11 @@ class ActualizarEstadoEntrada(BaseModel):
     estado: EstadoTransaccion
 
 
+class StripeIntentSalida(BaseModel):
+    client_secret: str
+    publishable_key: str
+
+
 class ActualizarMetodoPagoEntrada(BaseModel):
     metodo_pago: MetodoPago
 

@@ -23,6 +23,9 @@ def _mapear_orden_salida(orden: OrdenServicio) -> dict:
         cliente_perfil = incidente.usuario.cliente[0]
         nombre_cliente = f"{cliente_perfil.nombre} {cliente_perfil.apellido}"
 
+    tiene_transaccion = orden.transaccion is not None
+    transaccion_id = orden.transaccion.id if tiene_transaccion else None
+
     return {
         "id": orden.id,
         "fecha_hora": orden.fecha_hora,
@@ -32,6 +35,8 @@ def _mapear_orden_salida(orden: OrdenServicio) -> dict:
         "asignacion_candidato_id": orden.asignacion_candidato_id,
         "incidente_id": incidente_id,
         "nombre_cliente": nombre_cliente,
+        "tiene_transaccion": tiene_transaccion,
+        "transaccion_id": transaccion_id,
     }
 
 
@@ -96,5 +101,4 @@ def obtener_por_incidente_id(db: Session, incidente_id: int):
     if not orden:
         return None
     return _mapear_orden_salida(orden)
-
 

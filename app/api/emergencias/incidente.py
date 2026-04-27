@@ -55,6 +55,18 @@ def obtener_por_id(
     return incidente
 
 
+@router.get("/{incidente_id}/detalle", response_model=dict)
+def obtener_detalle_completo(
+    incidente_id: int,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    detalle = incidente_service.obtener_detalle_incidente(db, incidente_id)
+    if not detalle:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Incidente no encontrado")
+    return detalle
+
+
 @router.put("/{incidente_id}", response_model=IncidenteSalida)
 def actualizar(
     incidente_id: int,
@@ -78,5 +90,4 @@ def cancelar_incidente(
     if not incidente:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Incidente no encontrado")
     return incidente
-
 

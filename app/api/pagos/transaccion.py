@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.core.security import get_current_user
 from app.db.session import get_db
 from app.schemas.pagos.detalle_orden import GenerarPagoEntrada
-from app.schemas.pagos.transaccion import ActualizarEstadoEntrada, GenerarPagoSalida, TransaccionEntrada, TransaccionSalida
+from app.schemas.pagos.transaccion import ActualizarEstadoEntrada, GenerarPagoSalida, StripeIntentSalida, TransaccionEntrada, TransaccionSalida
 from app.services.pagos import service_transaccion
 
 router = APIRouter(
@@ -46,3 +46,16 @@ def actualizar_estado(transaccion_id: int, entrada: ActualizarEstadoEntrada, db:
     if not t:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transacción no encontrada")
     return t
+
+
+@router.post("/{transaccion_id}/stripe-intent", response_model=StripeIntentSalida)
+def crear_intent_stripe(transaccion_id: int, db: Session = Depends(get_db)):
+    """
+    Inicia una sesión de pago en Stripe (PaymentIntent) para la transacción.
+    Retorna el `client_secret` que el frontend (Flutter) requiere para completar el pago.
+    """
+    try:
+        resultado = service_transaccion.crear_payment_intent(db, transaccion_id)
+        return resultado
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

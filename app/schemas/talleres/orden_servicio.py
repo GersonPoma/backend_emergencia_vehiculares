@@ -15,4 +15,5 @@ class OrdenServicioSalida(BaseModel):
 
     incidente_id: int
     nombre_cliente: str
-
+    tiene_transaccion: bool = False
+    transaccion_id: int | None = None

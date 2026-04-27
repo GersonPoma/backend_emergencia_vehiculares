@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 
 from app.core.paginacion import PaginacionSalida
 from app.models.emergencias.incidente import EstadoIncidente, Incidente
+from app.models.emergencias.evidencia import Evidencia
+from app.models.talleres.asignacion_candidato import AsignacionCandidato, EstadoNotificacion
 from app.schemas.emergencias.incidente import IncidenteActualizar, IncidenteCrear
 
 
@@ -94,4 +96,92 @@ def cancelar_incidente(db: Session, incidente_id: int):
     db.refresh(incidente)
     return incidente
 
+def obtener_detalle_incidente(db: Session, incidente_id: int) -> dict:
+    incidente = obtener_por_id(db, incidente_id)
+    if not incidente:
+        return None
 
+    # Recopilar Evidencias
+    evidencias = db.query(Evidencia).filter(Evidencia.incidente_id == incidente_id, Evidencia.deleted == False).all()
+    evidencias_list = [{"id": e.id, "url": e.url, "tipo": e.tipo, "fecha_subida": e.fecha_hora} for e in evidencias]
+
+    # Recopilar Asignación al taller (Aceptado)
+    asignacion = db.query(AsignacionCandidato).filter(
+        AsignacionCandidato.incidente_id == incidente_id,
+        AsignacionCandidato.estado == EstadoNotificacion.ACEPTADO
+    ).first()
+
+    taller_info = None
+    orden_info = None
+    transaccion_info = None
+
+    if asignacion:
+        taller = asignacion.taller
+        if taller:
+            taller_info = {
+                "id": taller.id,
+                "nombre": taller.nombre,
+                "telefono": taller.telefono,
+                "direccion": taller.direccion,
+                "latitud": taller.latitud,
+                "longitud": taller.longitud
+            }
+
+        orden = asignacion.orden_servicio
+        if orden:
+            orden_info = {
+                "id": orden.id,
+                "estado": orden.estado,
+                "tiempo_estimado_segundos": orden.tiempo_estimado_llegada,
+                "fecha_hora": orden.fecha_hora,
+                "detalles": [
+                    {
+                        "id": d.id,
+                        "nombre_servicio": d.servicio_taller.nombre if d.servicio_taller else "Desconocido",
+                        "categoria": d.servicio_taller.categoria if d.servicio_taller else "Desconocido",
+                        "precio_cobrado": d.precio_cobrado,
+                        "comentario": d.comentario,
+                        "subtotal": d.precio_cobrado
+                    } for d in orden.detalles
+                ] if orden.detalles else []
+            }
+
+            transaccion = orden.transaccion
+            if transaccion:
+                transaccion_info = {
+                    "id": transaccion.id,
+                    "monto_cobrado": transaccion.monto_cobrado,
+                    "monto_comision": transaccion.monto_comision,
+                    "estado": transaccion.estado,
+                    "metodo_pago": transaccion.metodo_pago,
+                    "fecha_hora": transaccion.fecha_hora
+                }
+
+    # Recopilar análisis de IA (si existe)
+    analisis = incidente.analisis
+    analisis_info = None
+    if analisis:
+        analisis_info = {
+            "id": analisis.id,
+            "transcripcion_audio": analisis.transcripcion_audio,
+            "categoria_problema": analisis.categoria_problema,
+            "danios_identificados": analisis.danios_identificados,
+            "resumen_estructurado": analisis.resumen_estructurado,
+            "fecha_analisis": analisis.created_at
+        }
+
+    return {
+        "incidente": {
+            "id": incidente.id,
+            "latitud": incidente.latitud,
+            "longitud": incidente.longitud,
+            "estado": incidente.estado,
+            "prioridad": incidente.prioridad,
+            "fecha_hora": incidente.fecha_hora,
+        },
+        "evidencias": evidencias_list,
+        "analisis": analisis_info,
+        "taller_atendio": taller_info,
+        "orden_servicio": orden_info,
+        "transaccion": transaccion_info
+    }
