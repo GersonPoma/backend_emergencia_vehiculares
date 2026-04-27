@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -8,6 +8,16 @@ class DetalleOrdenEntrada(BaseModel):
     comentario: Optional[str] = None
     orden_servicio_id: int
     servicio_taller_id: int
+
+
+class DetalleOrdenItemEntrada(BaseModel):
+    servicio_taller_id: int
+    comentario: Optional[str] = None
+
+
+class GenerarPagoEntrada(BaseModel):
+    orden_servicio_id: int
+    servicios: List[DetalleOrdenItemEntrada]
 
 
 class DetalleOrdenSalida(BaseModel):

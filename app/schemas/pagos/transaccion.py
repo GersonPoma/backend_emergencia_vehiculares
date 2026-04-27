@@ -1,8 +1,10 @@
 from datetime import datetime
+from typing import List, Optional
 
 from pydantic import BaseModel
 
 from app.models.pagos.transaccion import EstadoTransaccion, MetodoPago
+from app.schemas.pagos.detalle_orden import DetalleOrdenSalida
 
 
 class TransaccionEntrada(BaseModel):
@@ -16,11 +18,20 @@ class ActualizarEstadoEntrada(BaseModel):
     estado: EstadoTransaccion
 
 
+class ActualizarMetodoPagoEntrada(BaseModel):
+    metodo_pago: MetodoPago
+
+
 class TransaccionSalida(BaseModel):
     id: int
     monto_cobrado: float
     monto_comision: float
     estado: EstadoTransaccion
-    metodo_pago: MetodoPago
+    metodo_pago: Optional[MetodoPago]
     fecha_hora: datetime
     orden_servicio_id: int
+
+
+class GenerarPagoSalida(BaseModel):
+    transaccion: TransaccionSalida
+    detalles: List[DetalleOrdenSalida]

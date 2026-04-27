@@ -16,4 +16,4 @@ class DetalleOrden(Base, SoftDelete):
     servicio_taller_id = Column(Integer, ForeignKey("servicio_taller.id"), nullable=False)
 
     orden_servicio = relationship("OrdenServicio", back_populates="detalles")
-    servicio_taller = relationship("ServicioTaller")
+    servicio_taller = relationship("ServicioTaller", back_populates="detalles")

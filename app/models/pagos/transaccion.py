@@ -43,7 +43,7 @@ class Transaccion(Base, SoftDelete):
             native_enum=False,
             validate_strings=True,
         ),
-        nullable=False,
+        nullable=True,
     )
     fecha_hora = Column(
         DateTime(timezone=True),

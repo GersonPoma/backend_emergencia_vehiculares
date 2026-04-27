@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 
 from app.core.security import get_current_user
 from app.db.session import get_db
-from app.schemas.pagos.transaccion import ActualizarEstadoEntrada, TransaccionEntrada, TransaccionSalida
+from app.schemas.pagos.detalle_orden import GenerarPagoEntrada
+from app.schemas.pagos.transaccion import ActualizarEstadoEntrada, GenerarPagoSalida, TransaccionEntrada, TransaccionSalida
 from app.services.pagos import service_transaccion
 
 router = APIRouter(
@@ -11,6 +12,11 @@ router = APIRouter(
     tags=["Transacciones"],
     dependencies=[Depends(get_current_user)],
 )
+
+
+@router.post("/generar-pago", response_model=GenerarPagoSalida, status_code=status.HTTP_201_CREATED)
+def generar_pago(entrada: GenerarPagoEntrada, db: Session = Depends(get_db)):
+    return service_transaccion.generar_pago(db, entrada.orden_servicio_id, entrada.servicios)
 
 
 @router.post("/", response_model=TransaccionSalida, status_code=status.HTTP_201_CREATED)

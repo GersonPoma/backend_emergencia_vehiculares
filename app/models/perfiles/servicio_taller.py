@@ -15,3 +15,4 @@ class ServicioTaller(Base, SoftDelete):
     taller_id = Column(Integer, ForeignKey("taller.id"), nullable=False)
 
     taller = relationship("Taller", back_populates="servicios")
+    detalles = relationship("DetalleOrden", back_populates="servicio_taller")

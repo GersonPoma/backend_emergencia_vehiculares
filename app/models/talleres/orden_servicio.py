@@ -11,7 +11,7 @@ class EstadoOperacion(str, PyEnum):
     EN_CAMINO = "En camino"
     DIAGNOSTICANDO = "Diagnosticando"
     REPARANDO = "Reparando"
-    FINALIZANDO = "Finalizando"
+    FINALIZADO = "Finalizado"
 
 class OrdenServicio(Base, SoftDelete):
     __tablename__ = "orden_servicio"

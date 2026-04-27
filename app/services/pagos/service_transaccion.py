@@ -1,7 +1,11 @@
+from typing import List
+
 from sqlalchemy.orm import Session
 
 from app.models.pagos.transaccion import EstadoTransaccion, Transaccion
+from app.schemas.pagos.detalle_orden import DetalleOrdenItemEntrada
 from app.schemas.pagos.transaccion import TransaccionEntrada
+from app.services.pagos import service_detalle_orden
 
 
 def _mapear_salida(t: Transaccion) -> dict:
@@ -13,6 +17,29 @@ def _mapear_salida(t: Transaccion) -> dict:
         "metodo_pago": t.metodo_pago,
         "fecha_hora": t.fecha_hora,
         "orden_servicio_id": t.orden_servicio_id,
+    }
+
+
+def generar_pago(
+    db: Session,
+    orden_servicio_id: int,
+    items: List[DetalleOrdenItemEntrada],
+) -> dict:
+    detalles, monto_cobrado = service_detalle_orden.crear_lote(db, orden_servicio_id, items)
+    monto_comision = round(monto_cobrado * 0.10, 2)
+    transaccion = Transaccion(
+        monto_cobrado=monto_cobrado,
+        monto_comision=monto_comision,
+        orden_servicio_id=orden_servicio_id,
+    )
+    db.add(transaccion)
+    db.commit()
+    db.refresh(transaccion)
+    for d in detalles:
+        db.refresh(d)
+    return {
+        "transaccion": _mapear_salida(transaccion),
+        "detalles": [service_detalle_orden._mapear_salida(d) for d in detalles],
     }
 
 
